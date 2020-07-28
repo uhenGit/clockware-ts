@@ -25,37 +25,56 @@ router.post("/register", function (req, res) {
     var _a = req.body, name = _a.name, mail = _a.mail, password = _a.password, city = _a.city;
     if (!name || !mail || !password) {
         return res.status(400).json({
-            alert: "all fields are required",
+            msg: "all fields are required",
+            isSignin: false,
         });
     }
     if (name.length < 4) {
         return res.status(400).json({
-            alert: "login name must unclude more than 3 symbols",
+            msg: "login name must unclude more than 3 symbols",
+            isSignin: false,
         });
     }
-    newClient.name = name;
-    newClient.city = city;
-    newClient.mail = mail;
-    newClient.createdAt = insertDate;
-    newClient.updatedAt = insertDate;
-    bcrypt.genSalt(10, function (err, salt) {
-        if (err) {
-            return console.log("gensalt error: ", err);
+    clientRepository
+        .findOne({ mail: req.body.mail })
+        .then(function (data) {
+        if (data) {
+            return res
+                .status(400)
+                .json({ msg: data.mail + " allready exists", isSignin: false });
         }
-        bcrypt.hash(password, salt, function (hashErr, hash) {
-            if (hashErr) {
-                throw hashErr;
-            }
-            else {
-                newClient.password = hash;
-                clientRepository
-                    .save(newClient)
-                    .then(function (data) {
-                    return res.status(200).json({ msg: "Client " + data.name + " created" });
-                })
-                    .catch(function (err) { return console.log("add query error: ", err); });
-            }
-        });
+        else {
+            newClient.name = name;
+            newClient.city = city;
+            newClient.mail = mail;
+            newClient.createdAt = insertDate;
+            newClient.updatedAt = insertDate;
+            bcrypt.genSalt(10, function (err, salt) {
+                if (err) {
+                    return console.log("gensalt error: ", err);
+                }
+                bcrypt.hash(password, salt, function (hashErr, hash) {
+                    if (hashErr) {
+                        throw hashErr;
+                    }
+                    else {
+                        newClient.password = hash;
+                        clientRepository
+                            .save(newClient)
+                            .then(function (data) {
+                            return res.status(200).json({
+                                msg: "Client " + data.name + " created",
+                                isSignin: true,
+                            });
+                        })
+                            .catch(function (err) { return console.log("add query error: ", err); });
+                    }
+                });
+            });
+        }
+    })
+        .catch(function (err) {
+        console.log("client find error: ", err);
     });
 });
 // set login route

@@ -26,37 +26,55 @@ router.post("/register", (req: express.Request, res: express.Response) => {
   let { name, mail, password, city } = req.body;
   if (!name || !mail || !password) {
     return res.status(400).json({
-      alert: "all fields are required",
+      msg: "all fields are required",
+      isSignin: false,
     });
   }
   if (name.length < 4) {
     return res.status(400).json({
-      alert: "login name must unclude more than 3 symbols",
+      msg: "login name must unclude more than 3 symbols",
+      isSignin: false,
     });
   }
-  newClient.name = name;
-  newClient.city = city;
-  newClient.mail = mail;
-  newClient.createdAt = insertDate;
-  newClient.updatedAt = insertDate;
-  bcrypt.genSalt(10, (err: Error, salt: string) => {
-    if (err) {
-      return console.log("gensalt error: ", err);
-    }
-    bcrypt.hash(password, salt, (hashErr: Error, hash: string) => {
-      if (hashErr) {
-        throw hashErr;
+  clientRepository
+    .findOne({ mail: req.body.mail })
+    .then((data) => {
+      if (data) {
+        return res
+          .status(400)
+          .json({ msg: `${data.mail} allready exists`, isSignin: false });
       } else {
-        newClient.password = hash;
-        clientRepository
-          .save(newClient)
-          .then((data) =>
-            res.status(200).json({ msg: `Client ${data.name} created` })
-          )
-          .catch((err) => console.log("add query error: ", err));
+        newClient.name = name;
+        newClient.city = city;
+        newClient.mail = mail;
+        newClient.createdAt = insertDate;
+        newClient.updatedAt = insertDate;
+        bcrypt.genSalt(10, (err: Error, salt: string) => {
+          if (err) {
+            return console.log("gensalt error: ", err);
+          }
+          bcrypt.hash(password, salt, (hashErr: Error, hash: string) => {
+            if (hashErr) {
+              throw hashErr;
+            } else {
+              newClient.password = hash;
+              clientRepository
+                .save(newClient)
+                .then((data) =>
+                  res.status(200).json({
+                    msg: `Client ${data.name} created`,
+                    isSignin: true,
+                  })
+                )
+                .catch((err) => console.log("add query error: ", err));
+            }
+          });
+        });
       }
+    })
+    .catch((err) => {
+      console.log("client find error: ", err);
     });
-  });
 });
 
 // set login route

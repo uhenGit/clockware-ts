@@ -1,5 +1,6 @@
 /client/node_modules
 /client/public
+/client/build-old
 /client/src
 /client/README.md
 /node_modules
