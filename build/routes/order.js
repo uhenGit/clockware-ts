@@ -28,6 +28,7 @@ router.post("/add", function (req, res) {
     newOrder.master_id = newMaster.id;
     //newOrder.master_name = newMaster.name;
     newOrder.clock_size = req.body.clock_size;
+    newOrder.isDone = false;
     newOrder.date = req.body.date;
     newOrder.time = req.body.time;
     var splitTime = req.body.time.split(".");

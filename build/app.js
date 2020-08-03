@@ -38,7 +38,7 @@ app.use(express_1.default.urlencoded({ extended: false }));
 /*app.get("/", (req: express.Request, res: express.Response) => {
   res.send("hi");
 });*/
-app.use(express_1.default.static(path_1.default.resolve(__dirname, "../client/build")));
+app.use(express_1.default.static(path_1.default.resolve(__dirname, "../client/public")));
 /*app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "../client/public/index.html"));
 });*/

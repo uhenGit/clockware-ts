@@ -43,7 +43,7 @@ var Client = /** @class */ (function () {
         __metadata("design:type", String)
     ], Client.prototype, "updatedAt", void 0);
     Client = __decorate([
-        typeorm_1.Entity({ name: "clients" })
+        typeorm_1.Entity()
     ], Client);
     return Client;
 }());

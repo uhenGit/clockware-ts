@@ -3,12 +3,13 @@ import { getRepository } from "typeorm";
 import { Client } from "../models/Client";
 
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+//import * as bcrypt from "bcryptjs";
+import * as jwt from "jsonwebtoken";
+import { auth } from "../middleWare/auth";
 
 const router = express.Router();
 
-// todo: set auth (admin)
-router.get("/all", (req: express.Request, res: express.Response) => {
+router.get("/all", auth, (req: express.Request, res: express.Response) => {
   const clientRepository = getRepository(Client);
   clientRepository
     .find()
@@ -16,8 +17,7 @@ router.get("/all", (req: express.Request, res: express.Response) => {
     .catch((err) => console.log("all query error: ", err));
 });
 
-// register
-// todo: bcrypt and jwt
+// POST_NEW_CLIENT
 router.post("/register", (req: express.Request, res: express.Response) => {
   const clientRepository = getRepository(Client);
   const newClient = new Client(),
@@ -62,7 +62,12 @@ router.post("/register", (req: express.Request, res: express.Response) => {
                 .save(newClient)
                 .then((data) =>
                   res.status(200).json({
-                    msg: `Client ${data.name} created`,
+                    user: {
+                      name: data.name,
+                      mail: data.mail,
+                      id: data.id,
+                    },
+                    msg: `Client ${data.name} created. Now You can login`,
                     isSignin: true,
                   })
                 )
@@ -77,7 +82,7 @@ router.post("/register", (req: express.Request, res: express.Response) => {
     });
 });
 
-// set login route
+// LOGIN
 router.post("/login", (req: express.Request, res: express.Response) => {
   if (!req.body.mail || !req.body.password) {
     return res.json({ alert: "all fields required" });
@@ -99,6 +104,7 @@ router.post("/login", (req: express.Request, res: express.Response) => {
                     name: client.name,
                   },
                   token: accessToken,
+                  isAuth: true,
                   isAdmin: true,
                 });
               } else {
@@ -107,19 +113,26 @@ router.post("/login", (req: express.Request, res: express.Response) => {
                     mail: client?.mail,
                     name: client?.name,
                     city: client?.city,
+                    id: client?.id,
                   },
                   token: accessToken,
                   isAdmin: false,
+                  isAuth: true,
                 });
               }
             } else {
-              res
-                .status(400)
-                .json({ msg: "Wrong password. Authorization failed" });
+              res.json({
+                msg: "Wrong password. Authorization failed",
+                isAuth: false,
+              });
             }
           })
           .catch((err: string) =>
-            res.json({ msg: "invalid credentials", error: err })
+            res.json({
+              msg: "Invalid credentials. Authorization failed",
+              isAuth: false,
+              error: err,
+            })
           );
       })
       .catch((err: Error) =>
@@ -127,47 +140,69 @@ router.post("/login", (req: express.Request, res: express.Response) => {
       );
   }
 });
-// set update route!!!!!!!!
-// todo: set auth (user)
-router.put("/update/:id", (req: express.Request, res: express.Response) => {
+
+// GET_ONE_CLIENT
+router.get("/:id", auth, (req: express.Request, res: express.Response) => {
   const clientRepository = getRepository(Client);
-  const updatedClient = new Client(),
-    date = new Date(),
-    insertDate = date.toISOString();
-  updatedClient.updatedAt = insertDate;
-  if (req.body.name) {
-    updatedClient.name = req.body.name;
-  }
-  if (req.body.mail) {
-    updatedClient.mail = req.body.mail;
-  }
-  if (req.body.password) {
-    updatedClient.password = req.body.password;
-  }
-  if (req.body.city) {
-    updatedClient.city = req.body.city;
-  }
   clientRepository
-    .update(req.params.id, updatedClient)
-    .then((data) =>
-      res
-        .status(200)
-        .json({ msg: `Updated strings quantity: ${data.affected}` })
-    )
-    .catch((err) => res.status(400).json({ msg: err.detail }));
+    .findOne(req.params.id)
+    .then((client) => res.status(200).json(client))
+    .catch((err) => console.log("find one error: ", err));
 });
 
+// UPDATE_CLIENT
+// todo: set auth (user)
+router.put(
+  "/update/:id",
+  auth,
+  (req: express.Request, res: express.Response) => {
+    const clientRepository = getRepository(Client);
+    const updatedClient = new Client(),
+      date = new Date(),
+      insertDate = date.toISOString();
+    updatedClient.updatedAt = insertDate;
+    if (req.body.name) {
+      updatedClient.name = req.body.name;
+    }
+    if (req.body.mail) {
+      updatedClient.mail = req.body.mail;
+    }
+    if (req.body.password) {
+      updatedClient.password = req.body.password;
+    }
+    if (req.body.city) {
+      updatedClient.city = req.body.city;
+    }
+    clientRepository
+      .update(req.params.id, updatedClient)
+      .then((data) =>
+        res.status(200).json({
+          msg: `Updated strings quantity: ${data.affected}`,
+          result: data,
+        })
+      )
+      .catch((err) => res.status(400).json({ msg: err.detail }));
+  }
+);
+
+// DELETE_CLIENT
 // todo: set auth (admin)
-router.delete("/delete/:id", (req: express.Request, res: express.Response) => {
-  const clientRepository = getRepository(Client);
-  clientRepository
-    .delete(req.params.id)
-    .then((result) =>
-      res
-        .status(200)
-        .json({ msg: `Deleted strings quantity: ${result.affected}` })
-    )
-    .catch((err) => console.log("delete error: ", err));
-});
+router.delete(
+  "/delete/:id",
+  auth,
+  (req: express.Request, res: express.Response) => {
+    const clientRepository = getRepository(Client);
+    //console.log(req.headers);
+
+    clientRepository
+      .delete(req.params.id)
+      .then((result) =>
+        res
+          .status(200)
+          .json({ msg: `Deleted strings quantity: ${result.affected}`, result })
+      )
+      .catch((err) => console.log("delete error: ", err));
+  }
+);
 
 module.exports = router;

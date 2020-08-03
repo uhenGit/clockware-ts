@@ -1,4 +1,23 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -7,7 +26,9 @@ var express_1 = __importDefault(require("express"));
 var typeorm_1 = require("typeorm");
 var Client_1 = require("../models/Client");
 var bcrypt = require("bcryptjs");
-var jwt = require("jsonwebtoken");
+//import * as bcrypt from "bcryptjs";
+var jwt = __importStar(require("jsonwebtoken"));
+var auth_1 = require("../middleWare/auth");
 var router = express_1.default.Router();
 // todo: set auth (admin)
 router.get("/all", function (req, res) {
@@ -63,7 +84,12 @@ router.post("/register", function (req, res) {
                             .save(newClient)
                             .then(function (data) {
                             return res.status(200).json({
-                                msg: "Client " + data.name + " created",
+                                user: {
+                                    name: data.name,
+                                    mail: data.mail,
+                                    id: data.id,
+                                },
+                                msg: "Client " + data.name + " created. Now You can login",
                                 isSignin: true,
                             });
                         })
@@ -100,6 +126,7 @@ router.post("/login", function (req, res) {
                                 name: client.name,
                             },
                             token: accessToken,
+                            isAuth: true,
                             isAdmin: true,
                         });
                     }
@@ -109,20 +136,27 @@ router.post("/login", function (req, res) {
                                 mail: client === null || client === void 0 ? void 0 : client.mail,
                                 name: client === null || client === void 0 ? void 0 : client.name,
                                 city: client === null || client === void 0 ? void 0 : client.city,
+                                id: client === null || client === void 0 ? void 0 : client.id,
                             },
                             token: accessToken,
                             isAdmin: false,
+                            isAuth: true,
                         });
                     }
                 }
                 else {
-                    res
-                        .status(400)
-                        .json({ msg: "Wrong password. Authorization failed" });
+                    res.json({
+                        msg: "Wrong password. Authorization failed",
+                        isAuth: false,
+                    });
                 }
             })
                 .catch(function (err) {
-                return res.json({ msg: "invalid credentials", error: err });
+                return res.json({
+                    msg: "Invalid credentials. Authorization failed",
+                    isAuth: false,
+                    error: err,
+                });
             });
         })
             .catch(function (err) {
@@ -130,7 +164,15 @@ router.post("/login", function (req, res) {
         });
     }
 });
-// set update route!!!!!!!!
+// GET_ONE_CLIENT
+router.get("/:id", function (req, res) {
+    var clientRepository = typeorm_1.getRepository(Client_1.Client);
+    clientRepository
+        .findOne(req.params.id)
+        .then(function (client) { return res.status(200).json(client); })
+        .catch(function (err) { return console.log("find one error: ", err); });
+});
+// UPDATE_CLIENT
 // todo: set auth (user)
 router.put("/update/:id", function (req, res) {
     var clientRepository = typeorm_1.getRepository(Client_1.Client);
@@ -151,21 +193,24 @@ router.put("/update/:id", function (req, res) {
     clientRepository
         .update(req.params.id, updatedClient)
         .then(function (data) {
-        return res
-            .status(200)
-            .json({ msg: "Updated strings quantity: " + data.affected });
+        return res.status(200).json({
+            msg: "Updated strings quantity: " + data.affected,
+            result: data,
+        });
     })
         .catch(function (err) { return res.status(400).json({ msg: err.detail }); });
 });
+// DELETE_CLIENT
 // todo: set auth (admin)
-router.delete("/delete/:id", function (req, res) {
+router.delete("/delete/:id", auth_1.auth, function (req, res) {
     var clientRepository = typeorm_1.getRepository(Client_1.Client);
+    //console.log(req.headers);
     clientRepository
         .delete(req.params.id)
         .then(function (result) {
         return res
             .status(200)
-            .json({ msg: "Deleted strings quantity: " + result.affected });
+            .json({ msg: "Deleted strings quantity: " + result.affected, result: result });
     })
         .catch(function (err) { return console.log("delete error: ", err); });
 });

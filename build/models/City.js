@@ -31,7 +31,7 @@ var City = /** @class */ (function () {
         __metadata("design:type", String)
     ], City.prototype, "updatedAt", void 0);
     City = __decorate([
-        typeorm_1.Entity({ name: "cities" })
+        typeorm_1.Entity()
     ], City);
     return City;
 }());

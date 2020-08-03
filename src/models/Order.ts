@@ -1,8 +1,6 @@
 // define relations between ordres and masters filtered by date, time and city
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import { Master } from "./Master";
-
-@Entity({ name: "orders" })
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+@Entity()
 export class Order {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -32,12 +30,11 @@ export class Order {
   willClose!: string;
 
   @Column()
+  isDone!: boolean;
+
+  @Column()
   createdAt!: string;
 
   @Column()
   updatedAt!: string;
-
-  // something wrong
-  @ManyToOne(() => Master, (master) => master.name)
-  master!: Master;
 }

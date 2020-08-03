@@ -29,6 +29,7 @@ router.post("/add", (req: express.Request, res: express.Response) => {
   newOrder.master_id = newMaster.id;
   //newOrder.master_name = newMaster.name;
   newOrder.clock_size = req.body.clock_size;
+  newOrder.isDone = false;
   newOrder.date = req.body.date;
   newOrder.time = req.body.time;
   let splitTime = req.body.time.split(".");

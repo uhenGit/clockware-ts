@@ -1,7 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-import { Order } from "./Order";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-@Entity({ name: "masters" })
+@Entity()
 export class Master {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -23,7 +22,4 @@ export class Master {
 
   @Column()
   updatedAt!: string;
-
-  @OneToMany(() => Order, (order: Order) => order.master_id)
-  orderMaster!: Order;
 }

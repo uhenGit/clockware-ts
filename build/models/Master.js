@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Master = void 0;
 var typeorm_1 = require("typeorm");
-var Order_1 = require("./Order");
 var Master = /** @class */ (function () {
     function Master() {
     }
@@ -43,12 +42,8 @@ var Master = /** @class */ (function () {
         typeorm_1.Column(),
         __metadata("design:type", String)
     ], Master.prototype, "updatedAt", void 0);
-    __decorate([
-        typeorm_1.OneToMany(function () { return Order_1.Order; }, function (order) { return order.master_id; }),
-        __metadata("design:type", Order_1.Order)
-    ], Master.prototype, "orderMaster", void 0);
     Master = __decorate([
-        typeorm_1.Entity({ name: "masters" })
+        typeorm_1.Entity()
     ], Master);
     return Master;
 }());

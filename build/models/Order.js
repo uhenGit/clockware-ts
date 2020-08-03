@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Order = void 0;
 // define relations between ordres and masters filtered by date, time and city
 var typeorm_1 = require("typeorm");
-var Master_1 = require("./Master");
 var Order = /** @class */ (function () {
     function Order() {
     }
@@ -54,18 +53,18 @@ var Order = /** @class */ (function () {
     ], Order.prototype, "willClose", void 0);
     __decorate([
         typeorm_1.Column(),
+        __metadata("design:type", Boolean)
+    ], Order.prototype, "isDone", void 0);
+    __decorate([
+        typeorm_1.Column(),
         __metadata("design:type", String)
     ], Order.prototype, "createdAt", void 0);
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
     ], Order.prototype, "updatedAt", void 0);
-    __decorate([
-        typeorm_1.ManyToOne(function () { return Master_1.Master; }, function (master) { return master.name; }),
-        __metadata("design:type", Master_1.Master)
-    ], Order.prototype, "master", void 0);
     Order = __decorate([
-        typeorm_1.Entity({ name: "orders" })
+        typeorm_1.Entity()
     ], Order);
     return Order;
 }());
