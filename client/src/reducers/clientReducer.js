@@ -37,7 +37,8 @@ export default (state = initialState, action) => {
         client: action.payload,
       };
     case LOGIN:
-      localStorage.setItem("user", JSON.stringify(action.payload));
+      console.log("login reducer payload: ", action.payload);
+      localStorage.setItem("token", JSON.stringify(action.payload.token));
       return {
         ...state,
         client: action.payload,
@@ -46,13 +47,22 @@ export default (state = initialState, action) => {
       };
     case POST_NEW_CLIENT_ERROR:
     case LOGIN_ERROR:
-    case LOGOUT:
-      localStorage.removeItem("user");
+      localStorage.removeItem("token");
       return {
         ...state,
         client: action.payload,
         isLoad: false,
         isAuth: false,
+      };
+    case LOGOUT:
+    case DELETE_CLIENT:
+      localStorage.removeItem("token");
+      return {
+        ...state,
+        client: null,
+        isLoad: false,
+        isAuth: false,
+        isSignin: false,
       };
     case POST_NEW_CLIENT:
       return {
@@ -61,13 +71,6 @@ export default (state = initialState, action) => {
         isLoad: false,
         isAuth: false,
         isSignin: true,
-      };
-    case DELETE_CLIENT:
-      localStorage.removeItem("user");
-      return {
-        ...state,
-        isLoad: false,
-        isAuth: false,
       };
     default:
       return state;

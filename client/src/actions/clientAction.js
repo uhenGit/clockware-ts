@@ -29,7 +29,7 @@ export const signin = (mail, name, city, password) => (dispatch) => {
     })
     .then((data) => {
       if (!data.isSignin) {
-        dispatch({ type: POST_NEW_CLIENT_ERROR, payload: data.msg });
+        dispatch({ type: POST_NEW_CLIENT_ERROR, payload: data });
       } else {
         dispatch({ type: POST_NEW_CLIENT, payload: data });
       }
@@ -54,7 +54,7 @@ export const login = (mail, password) => (dispatch) => {
       if (!data.isAuth) {
         dispatch({
           type: LOGIN_ERROR,
-          payload: data.msg,
+          payload: data,
         });
       } else {
         dispatch({
@@ -72,7 +72,7 @@ export const logout = () => (dispatch) => {
 };
 
 export const deleteClient = (id) => (dispatch) => {
-  const token = JSON.parse(localStorage.getItem("user")).token;
+  const token = JSON.parse(localStorage.getItem("token"));
   fetch(`/clients/delete/${id}`, {
     method: "DELETE",
     headers: {
@@ -90,7 +90,14 @@ export const deleteClient = (id) => (dispatch) => {
 };
 
 export const getOne = (id) => (dispatch) => {
-  fetch(`/clients/${id}`)
+  const token = JSON.parse(localStorage.getItem("token"));
+  fetch(`/clients/${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Auth-Token": token,
+    },
+  })
     .then((res) => res.json())
     .then((client) => {
       console.log("GET_ONE: ", client);
@@ -103,7 +110,14 @@ export const getOne = (id) => (dispatch) => {
 };
 
 export const getAllClients = () => (dispatch) => {
-  fetch("/clients/all")
+  const token = JSON.parse(localStorage.getItem("token"));
+  fetch("/clients/all", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Auth-Token": token,
+    },
+  })
     .then((res) => res.json())
     .then((clients) => {
       dispatch({

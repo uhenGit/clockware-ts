@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
-import { getOne, inprocess, deleteClient } from "../actions/clientAction";
+import { inprocess, deleteClient } from "../actions/clientAction";
+import store from "../store";
 
 class EditClient extends Component {
   state = {
@@ -13,9 +14,8 @@ class EditClient extends Component {
     redir: false,
   };
   componentDidMount() {
-    const { mail, name, city, id } = JSON.parse(
-      localStorage.getItem("user")
-    ).user;
+    console.log("edit store: ", store.getState().clients.client.user);
+    const { mail, name, city, id } = store.getState().clients.client.user;
     this.setState({
       currentId: id,
       currentMail: mail,
@@ -47,8 +47,10 @@ class EditClient extends Component {
     e.preventDefault();
     this.props.inprocess();
     this.props.deleteClient(this.state.currentId);
-    localStorage.removeItem("user");
-    this.setState({ redir: true });
+    //localStorage.removeItem("user");
+    setTimeout(() => {
+      this.setState({ redir: true });
+    }, 400);
   };
   render() {
     if (this.state.redir) {
@@ -95,4 +97,4 @@ class EditClient extends Component {
   }
 }
 
-export default connect(null, { getOne, deleteClient, inprocess })(EditClient);
+export default connect(null, { deleteClient, inprocess })(EditClient);

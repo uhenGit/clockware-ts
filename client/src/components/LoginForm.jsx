@@ -35,7 +35,7 @@ class LoginForm extends Component {
     return (
       <div>
         <div className="form_wrap">
-          {this.props.data !== null ? <h2>{this.props.data.msg}</h2> : null}
+          {/* {this.props.data !== null ? <h2>{this.props.data.msg}</h2> : null} */}
           <h2>Log In</h2>
           <form onSubmit={this.formSubmit}>
             {/* IF PASS OR LOGIN IS INVALID */}

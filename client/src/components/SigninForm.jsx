@@ -10,7 +10,7 @@ class SigninForm extends Component {
     city: "",
     password: "",
     borderColor: "",
-    isSignin: false,
+    redir: false,
   };
   changeInput = (e) => {
     this.setState({
@@ -52,13 +52,14 @@ class SigninForm extends Component {
       mail: "",
       city: "",
       password: "",
+      redir: true,
     });
   };
   render() {
     if (this.props.isLoad) {
       return <h2>Loading...</h2>;
     }
-    if (this.props.isSignin) {
+    if (this.state.redir) {
       return <Redirect to="/login" />;
     }
     return (
@@ -66,8 +67,8 @@ class SigninForm extends Component {
         <div className="form_wrap">
           <h2>Sign In</h2>
           <form onSubmit={this.formSubmit}>
-            {this.props.client !== null && !this.props.isSignin ? (
-              <h3>{this.props.client.toString()}</h3>
+            {this.props.client !== null ? (
+              <h3>{this.props.client.msg.toString()}</h3>
             ) : null}
             <label>
               <span>Введите имя:</span>
@@ -128,12 +129,9 @@ class SigninForm extends Component {
   }
 }
 
-const mapStateToProps = (state) => (
-  console.log("signin state: ", state),
-  {
-    client: state.clients.client,
-    isLoad: state.clients.isLoad,
-    isSignin: state.clients.isSignin,
-  }
-);
+const mapStateToProps = (state) => ({
+  client: state.clients.client,
+  isLoad: state.clients.isLoad,
+  isSignin: state.clients.isSignin,
+});
 export default connect(mapStateToProps, { signin, inprocess })(SigninForm);

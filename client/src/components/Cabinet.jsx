@@ -4,29 +4,30 @@ import OrderForm from "./OrderForm";
 import EditOrder from "./EditOrder";
 import EditClient from "./EditClient";
 import Intro from "./Intro";
+import store from "../store";
 
 class Cabinet extends Component {
   state = {
     clientName: "",
-    clientMail: "",
-    clientCity: "",
+    // clientMail: "",
+    // clientCity: "",
     redir: false,
     selectedInput: "intro",
   };
   componentDidMount() {
-    if (JSON.parse(localStorage.getItem("user")) === null) {
+    console.log("cabinet store: ", store.getState());
+    if (store.getState().clients.client === null) {
       this.setState({
         redir: true,
       });
     } else {
-      let client = JSON.parse(localStorage.getItem("user")).user;
+      let client = store.getState().clients.client.user;
       this.setState({
         clientName: client.name,
-        clientMail: client.mail,
-        clientCity: client.city,
+        //   clientMail: client.mail,
+        //   clientCity: client.city,
       });
     }
-    console.log(this.state);
   }
   handleChange = (e) => {
     this.setState({
