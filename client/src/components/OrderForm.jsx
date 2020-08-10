@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Link } from "react-router-dom";
+import AvailableMaster from "./AvailableMaster";
+import store from "../store";
 
 class OrderForm extends Component {
   state = {
@@ -13,8 +15,8 @@ class OrderForm extends Component {
     redir: false,
   };
   componentDidMount() {
-    if (localStorage.getItem("user")) {
-      const user = JSON.parse(localStorage.getItem("user")).user;
+    if (localStorage.getItem("token")) {
+      const user = store.getState().clients.client.user;
       this.setState({
         name: user.name,
         mail: user.mail,
@@ -34,7 +36,6 @@ class OrderForm extends Component {
   formSubmit = (e) => {
     e.preventDefault();
     console.log(this.state);
-    // todo: add master filter (relation first)
   };
   render() {
     if (this.state.redir) {
@@ -86,6 +87,9 @@ class OrderForm extends Component {
                 onChange={this.handleInput}
               />
             </label>
+            {this.state.date !== "" && this.state.time !== "" ? (
+              <AvailableMaster />
+            ) : null}
             <div className="btn_wrap">
               <button type="submit">Send</button>
               <Link to="/">

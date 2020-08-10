@@ -22,23 +22,23 @@ var Order = /** @class */ (function () {
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], Order.prototype, "client_name", void 0);
+    ], Order.prototype, "clientName", void 0);
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", Number)
-    ], Order.prototype, "master_id", void 0);
+    ], Order.prototype, "masterId", void 0);
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], Order.prototype, "master_name", void 0);
+    ], Order.prototype, "masterName", void 0);
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], Order.prototype, "city_name", void 0);
+    ], Order.prototype, "cityName", void 0);
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)
-    ], Order.prototype, "clock_size", void 0);
+    ], Order.prototype, "clockSize", void 0);
     __decorate([
         typeorm_1.Column(),
         __metadata("design:type", String)

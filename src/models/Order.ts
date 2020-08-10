@@ -6,19 +6,19 @@ export class Order {
   id!: number;
 
   @Column()
-  client_name!: string;
+  clientName!: string;
 
   @Column()
-  master_id!: number;
+  masterId!: number;
 
   @Column()
-  master_name!: string;
+  masterName!: string;
 
   @Column()
-  city_name!: string;
+  cityName!: string;
 
   @Column()
-  clock_size!: string;
+  clockSize!: string;
 
   @Column()
   date!: string;

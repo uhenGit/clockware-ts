@@ -37,7 +37,6 @@ export default (state = initialState, action) => {
         client: action.payload,
       };
     case LOGIN:
-      console.log("login reducer payload: ", action.payload);
       localStorage.setItem("token", JSON.stringify(action.payload.token));
       return {
         ...state,

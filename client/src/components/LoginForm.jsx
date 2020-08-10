@@ -3,6 +3,7 @@ import { Link, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { login } from "../actions/clientAction";
 import { inprocess } from "../actions/clientAction";
+import store from "../store";
 
 class LoginForm extends Component {
   state = {
@@ -29,13 +30,18 @@ class LoginForm extends Component {
     if (this.props.isLoad) {
       return <h2>Loading...</h2>;
     }
+    if (
+      store.getState().clients.client !== null &&
+      store.getState().clients.client.isAdmin
+    ) {
+      return <Redirect to="/dashboard" />;
+    }
     if (this.props.isAuth) {
       return <Redirect to="/cabinet" />;
     }
     return (
       <div>
         <div className="form_wrap">
-          {/* {this.props.data !== null ? <h2>{this.props.data.msg}</h2> : null} */}
           <h2>Log In</h2>
           <form onSubmit={this.formSubmit}>
             {/* IF PASS OR LOGIN IS INVALID */}

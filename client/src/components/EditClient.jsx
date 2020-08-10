@@ -14,7 +14,6 @@ class EditClient extends Component {
     redir: false,
   };
   componentDidMount() {
-    console.log("edit store: ", store.getState().clients.client.user);
     const { mail, name, city, id } = store.getState().clients.client.user;
     this.setState({
       currentId: id,
@@ -47,7 +46,7 @@ class EditClient extends Component {
     e.preventDefault();
     this.props.inprocess();
     this.props.deleteClient(this.state.currentId);
-    //localStorage.removeItem("user");
+    // убрать костыль
     setTimeout(() => {
       this.setState({ redir: true });
     }, 400);

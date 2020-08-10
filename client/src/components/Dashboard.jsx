@@ -2,13 +2,14 @@ import React, { Component } from "react";
 import { Link, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { logout } from "../actions/clientAction";
-import OrderForm from "./OrderForm";
-import EditOrder from "./EditOrder";
-import EditClient from "./EditClient";
-import Intro from "./Intro";
+import Order from "./Order";
+import City from "./City";
+import Client from "./Client";
+import Master from "./Master";
+import AdminIntro from "./AdminIntro";
 import store from "../store";
 
-class Cabinet extends Component {
+class Dashboard extends Component {
   state = {
     clientName: "",
     redir: false,
@@ -45,25 +46,27 @@ class Cabinet extends Component {
     }
     switch (this.state.selectedInput) {
       case "intro":
-        block = <Intro />;
+        block = <AdminIntro />;
         break;
-      case "newOrder":
-        block = <OrderForm />;
+      case "orders":
+        block = <Order />;
         break;
-      case "editOrder":
-        block = <EditOrder />;
+      case "clients":
+        block = <Client />;
         break;
-      case "editData":
-        block = <EditClient />;
+      case "masters":
+        block = <Master />;
+        break;
+      case "cities":
+        block = <City />;
         break;
       default:
         break;
     }
-
     return (
       <div className="cabinet_wrap">
         <div className="left_block">
-          <h2>Cabinet</h2>
+          <h2>Dashboard</h2>
           <Link to="/">Home</Link>
           <h3>Hello {this.state.clientName}</h3>
           <button onClick={this.logOut}>Выход</button>
@@ -85,50 +88,65 @@ class Cabinet extends Component {
             </label>
             <label
               className={
-                this.state.selectedInput === "newOrder"
+                this.state.selectedInput === "orders"
                   ? "toggle_input active"
                   : "toggle_input"
               }
             >
               <input
                 type="radio"
-                name="newOrder"
-                checked={this.state.selectedInput === "newOrder"}
+                name="orders"
+                checked={this.state.selectedInput === "orders"}
                 onChange={this.handleChange}
               />
-              <span className="radio_text">Заказать новую услугу</span>
+              <span className="radio_text">Заказы</span>
             </label>
 
             <label
               className={
-                this.state.selectedInput === "editOrder"
+                this.state.selectedInput === "clients"
                   ? "toggle_input active"
                   : "toggle_input"
               }
             >
               <input
                 type="radio"
-                name="editOrder"
-                checked={this.state.selectedInput === "editOrder"}
+                name="clients"
+                checked={this.state.selectedInput === "clients"}
                 onChange={this.handleChange}
               />
-              <span className="radio_text">Редактировать заказ</span>
+              <span className="radio_text">Клиенты</span>
             </label>
 
             <label
               className={
-                this.state.selectedInput === "editData"
+                this.state.selectedInput === "masters"
                   ? "toggle_input active"
                   : "toggle_input"
               }
             >
               <input
                 type="radio"
-                name="editData"
-                checked={this.state.selectedInput === "editData"}
+                name="masters"
+                checked={this.state.selectedInput === "masters"}
                 onChange={this.handleChange}
               />
-              <span className="radio_text">Редактировать данные</span>
+              <span className="radio_text">Мастера</span>
+            </label>
+            <label
+              className={
+                this.state.selectedInput === "cities"
+                  ? "toggle_input active"
+                  : "toggle_input"
+              }
+            >
+              <input
+                type="radio"
+                name="cities"
+                checked={this.state.selectedInput === "cities"}
+                onChange={this.handleChange}
+              />
+              <span className="radio_text">Города</span>
             </label>
           </form>
         </div>
@@ -137,4 +155,4 @@ class Cabinet extends Component {
     );
   }
 }
-export default connect(null, { logout })(Cabinet);
+export default connect(null, { logout })(Dashboard);

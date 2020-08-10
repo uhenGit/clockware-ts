@@ -1,4 +1,6 @@
 /client/node_modules
 /client/build-old
+/client/build
 /client/README.md
+/build
 /node_modules

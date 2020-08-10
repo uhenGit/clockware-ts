@@ -5,6 +5,7 @@ import Header from "./Header";
 import Home from "./Home";
 import LoginForm from "./LoginForm";
 import Cabinet from "./Cabinet";
+import Dashboard from "./Dashboard";
 import SigninForm from "./SigninForm";
 import OrderForm from "./OrderForm";
 import store from "../store";
@@ -21,6 +22,7 @@ class App extends Component {
           <Route path="/cabinet" component={Cabinet} />
           <Route path="/signin" component={SigninForm} />
           <Route path="/newOrder" component={OrderForm} />
+          <Route path="/dashboard" component={Dashboard} />
         </Switch>
       </Provider>
     );

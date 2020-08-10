@@ -99,10 +99,11 @@ span {
 .right_block div .form_wrap form {
   width: 100%;
 }
-.left_block form label {
+.toggle_input {
   display: block;
   position: relative;
   width: 100%;
+  background-color: transparent;
   border: 3px solid rgb(169, 169, 169);
   border-radius: 7px;
   cursor: pointer;
@@ -113,7 +114,8 @@ span {
   user-select: none;
   transition-duration: 300ms;
 }
-.left_block form label:hover {
+.toggle_input:hover,
+.active {
   background-color: rgb(169, 169, 169);
 }
 input[type="radio"] {
@@ -126,4 +128,13 @@ input[type="radio"] {
   height: 17px;
   width: 100%;
   margin: 0 13px 14px 10px;
+}
+ul {
+  margin-bottom: 2rem;
+}
+.list {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid rgba(210, 165, 30, 0.6);
 }

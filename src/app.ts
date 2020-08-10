@@ -1,12 +1,13 @@
 import express from "express";
 import path from "path";
-//import cors from "cors";
-import { createConnection } from "typeorm";
+import * as dotenv from "dotenv";
+import { createConnection, DatabaseType } from "typeorm";
 import { City } from "./models/City";
 import { Master } from "./models/Master";
 import { Client } from "./models/Client";
 import { Order } from "./models/Order";
 require("reflect-metadata");
+dotenv.config();
 
 const PORT = process.env.PORT || 3001;
 
@@ -17,16 +18,17 @@ const clients = require("./routes/client");
 const orders = require("./routes/order");
 
 const app: express.Application = express();
+//const rootDir = process.env.NODE_ENV === "development" ? "build" : "src";
 createConnection({
   type: "postgres",
-  host: "localhost",
-  username: "postgres",
-  password: "postgres",
-  database: "clockware",
+  host: process.env.TYPEORM_HOST,
+  username: process.env.TYPEORM_USERNAME,
+  password: process.env.TYPEORM_PASSWORD,
+  database: process.env.TYPEORM_DATABASE,
   //ssl: true,
   synchronize: true,
   logging: false,
-  entities: [City, Master, Order, Client],
+  entities: [City, Client, Master, Order],
 })
   .then()
   .catch((err) => console.log("connection error: ", err));

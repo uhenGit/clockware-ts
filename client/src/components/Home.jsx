@@ -1,12 +1,15 @@
 import React, { Component } from "react";
-//import SigninForm from "./SigninForm";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import { logout } from "../actions/clientAction";
+import store from "../store";
 
 class Home extends Component {
   componentDidMount() {
-    if (localStorage.getItem("user")) {
+    if (
+      localStorage.getItem("token") &&
+      store.getState().clients.client !== null
+    ) {
       this.setState({
         isLogin: true,
       });
@@ -41,6 +44,12 @@ class Home extends Component {
           </div>
         ) : (
           <div className="user_action">
+            {store.getState().clients.client !== null &&
+            store.getState().clients.client.isAdmin ? (
+              <Link to="/dashboard">
+                <button>Dashboard</button>
+              </Link>
+            ) : null}
             <Link to="/cabinet">
               <button>В кабинет</button>
             </Link>
@@ -53,4 +62,3 @@ class Home extends Component {
   }
 }
 export default connect(null, { logout })(Home);
-//export default Home;

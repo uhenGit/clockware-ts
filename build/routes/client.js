@@ -30,16 +30,14 @@ var bcrypt = require("bcryptjs");
 var jwt = __importStar(require("jsonwebtoken"));
 var auth_1 = require("../middleWare/auth");
 var router = express_1.default.Router();
-// todo: set auth (admin)
-router.get("/all", function (req, res) {
+router.get("/all", auth_1.auth, function (req, res) {
     var clientRepository = typeorm_1.getRepository(Client_1.Client);
     clientRepository
         .find()
         .then(function (data) { return res.status(200).json(data); })
         .catch(function (err) { return console.log("all query error: ", err); });
 });
-// register
-// todo: bcrypt and jwt
+// POST_NEW_CLIENT
 router.post("/register", function (req, res) {
     var clientRepository = typeorm_1.getRepository(Client_1.Client);
     var newClient = new Client_1.Client(), date = new Date(), insertDate = date.toISOString();
@@ -103,7 +101,7 @@ router.post("/register", function (req, res) {
         console.log("client find error: ", err);
     });
 });
-// set login route
+// LOGIN
 router.post("/login", function (req, res) {
     if (!req.body.mail || !req.body.password) {
         return res.json({ alert: "all fields required" });
@@ -124,6 +122,8 @@ router.post("/login", function (req, res) {
                             user: {
                                 mail: client.mail,
                                 name: client.name,
+                                city: client === null || client === void 0 ? void 0 : client.city,
+                                id: client === null || client === void 0 ? void 0 : client.id,
                             },
                             token: accessToken,
                             isAuth: true,
@@ -165,7 +165,7 @@ router.post("/login", function (req, res) {
     }
 });
 // GET_ONE_CLIENT
-router.get("/:id", function (req, res) {
+router.get("/:id", auth_1.auth, function (req, res) {
     var clientRepository = typeorm_1.getRepository(Client_1.Client);
     clientRepository
         .findOne(req.params.id)
@@ -174,7 +174,7 @@ router.get("/:id", function (req, res) {
 });
 // UPDATE_CLIENT
 // todo: set auth (user)
-router.put("/update/:id", function (req, res) {
+router.put("/update/:id", auth_1.auth, function (req, res) {
     var clientRepository = typeorm_1.getRepository(Client_1.Client);
     var updatedClient = new Client_1.Client(), date = new Date(), insertDate = date.toISOString();
     updatedClient.updatedAt = insertDate;

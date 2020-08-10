@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { signin, inprocess } from "../actions/clientAction";
+import { getCities } from "../actions/cityAction";
 
 class SigninForm extends Component {
   state = {
@@ -12,6 +13,9 @@ class SigninForm extends Component {
     borderColor: "",
     redir: false,
   };
+  componentDidMount() {
+    this.props.getCities();
+  }
   changeInput = (e) => {
     this.setState({
       [e.target.name]: e.target.value,
@@ -25,6 +29,11 @@ class SigninForm extends Component {
         borderColor: "green",
       });
     }
+  };
+  changeCity = (e) => {
+    this.setState({
+      city: e.target.value,
+    });
   };
   formSubmit = (e) => {
     e.preventDefault();
@@ -82,6 +91,7 @@ class SigninForm extends Component {
                 onChange={this.changeInput}
               />
             </label>
+
             <label>
               <span>Введите email:</span>
               <input
@@ -93,14 +103,14 @@ class SigninForm extends Component {
               />
             </label>
             <label>
-              <span>Введите город:</span>
-              <input
-                type="text"
-                name="city"
-                placeholder="город"
-                value={this.state.city}
-                onChange={this.changeInput}
-              />
+              <span>Выберите город:</span>
+              <select onChange={this.changeCity}>
+                <option></option>
+                {this.props.cities.cities.map((city) => {
+                  let { name, id } = city;
+                  return <option key={id}>{name}</option>;
+                })}
+              </select>
             </label>
             <label>
               <span>Введите пароль:</span>
@@ -133,5 +143,8 @@ const mapStateToProps = (state) => ({
   client: state.clients.client,
   isLoad: state.clients.isLoad,
   isSignin: state.clients.isSignin,
+  cities: state.cities,
 });
-export default connect(mapStateToProps, { signin, inprocess })(SigninForm);
+export default connect(mapStateToProps, { signin, inprocess, getCities })(
+  SigninForm
+);

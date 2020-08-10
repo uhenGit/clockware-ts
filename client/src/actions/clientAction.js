@@ -33,7 +33,6 @@ export const signin = (mail, name, city, password) => (dispatch) => {
       } else {
         dispatch({ type: POST_NEW_CLIENT, payload: data });
       }
-      console.log("redux sign in data: ", data);
     })
     .catch((err) => console.log("redux sign in error: ", err));
 };

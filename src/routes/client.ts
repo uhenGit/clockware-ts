@@ -102,6 +102,8 @@ router.post("/login", (req: express.Request, res: express.Response) => {
                   user: {
                     mail: client.mail,
                     name: client.name,
+                    city: client?.city,
+                    id: client?.id,
                   },
                   token: accessToken,
                   isAuth: true,
