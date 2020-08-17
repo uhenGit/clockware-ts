@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
-import { inprocess, deleteClient } from "../actions/clientAction";
+import { deleteClient } from "../actions/clientAction";
 import store from "../store";
 
 class EditClient extends Component {
@@ -44,7 +44,6 @@ class EditClient extends Component {
   };
   deleteClient = (e) => {
     e.preventDefault();
-    this.props.inprocess();
     this.props.deleteClient(this.state.currentId);
     // убрать костыль
     setTimeout(() => {
@@ -96,4 +95,4 @@ class EditClient extends Component {
   }
 }
 
-export default connect(null, { deleteClient, inprocess })(EditClient);
+export default connect(null, { deleteClient })(EditClient);

@@ -13,6 +13,22 @@ router.get("/all", auth, (req: express.Request, res: express.Response) => {
     .catch((err) => console.log("all query error: ", err));
 });
 
+router.get(
+  "/ordered/:date/:time",
+  (req: express.Request, res: express.Response) => {
+    const masterRepository = getRepository(Master);
+    masterRepository
+      .query(`SELECT name FROM master`)
+      .then((data) => {
+        //res.json(data);
+        console.log(
+          `data (names): ${data.name}, params: ${req.params.date}, ${req.params.time}`
+        );
+      })
+      .catch((err) => console.log("params query error: ", err));
+  }
+);
+
 router.post("/add", auth, (req: express.Request, res: express.Response) => {
   const masterRepository = getRepository(Master);
   const newMaster = new Master(),
@@ -26,7 +42,7 @@ router.post("/add", auth, (req: express.Request, res: express.Response) => {
     .save(newMaster)
     //.query(`INSERT INTO cities (name) VALUES (${name}) returning *`)
     .then((data) =>
-      res.status(200).json({ msg: `Master ${data.name} created` })
+      res.status(200).json({ msg: `Master ${data.name} created`, data })
     )
     .catch((err) => console.log("add query error: ", err));
 });
@@ -70,4 +86,4 @@ router.delete(
   }
 );
 
-module.exports = router;
+export default router;

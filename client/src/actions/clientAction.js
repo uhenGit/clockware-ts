@@ -11,11 +11,12 @@ import {
   POST_NEW_CLIENT_ERROR,
 } from "./types";
 
-export const inprocess = () => (dispatch) => {
-  dispatch({ type: INPROCESS });
-};
+// export const inprocess = () => (dispatch) => {
+//   dispatch({ type: INPROCESS });
+// };
 
 export const signin = (mail, name, city, password) => (dispatch) => {
+  dispatch({ type: INPROCESS });
   let body = JSON.stringify({ mail, name, city, password });
   fetch("/clients/register", {
     method: "POST",
@@ -38,6 +39,7 @@ export const signin = (mail, name, city, password) => (dispatch) => {
 };
 
 export const login = (mail, password) => (dispatch) => {
+  dispatch({ type: INPROCESS });
   const body = JSON.stringify({ mail, password });
   fetch("/clients/login", {
     method: "POST",
@@ -65,6 +67,7 @@ export const login = (mail, password) => (dispatch) => {
     .catch((err) => console.log("redux login error: ", err));
 };
 export const logout = () => (dispatch) => {
+  dispatch({ type: INPROCESS });
   dispatch({
     type: LOGOUT,
   });

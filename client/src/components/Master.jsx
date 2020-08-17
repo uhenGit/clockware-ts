@@ -1,11 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import {
-  getMasters,
-  addMaster,
-  deleteMaster,
-  inprocess,
-} from "../actions/masterAction";
+import { getMasters, addMaster, deleteMaster } from "../actions/masterAction";
 import { getCities } from "../actions/cityAction";
 
 class Master extends Component {
@@ -19,7 +14,6 @@ class Master extends Component {
   }
   delItem = (id) => {
     this.props.deleteMaster(id);
-    this.props.inprocess();
     this.props.getMasters();
   };
   handleInput = (e) => {
@@ -35,22 +29,21 @@ class Master extends Component {
   addMaster = (e) => {
     e.preventDefault();
     this.props.addMaster(this.state.master, this.state.city);
-    this.props.inprocess();
     this.props.getMasters();
     this.setState({ master: "" });
   };
   render() {
-    if (this.props.isLoad) {
+    if (this.props.masters.isLoad) {
       return <h2>Wait...</h2>;
     }
     return (
       <div>
         <h2>Masters</h2>
         <ul>
-          {this.props.masters.masters.map((master) => {
+          {this.props.masters.masters.map((master, index) => {
             let { name, city, id } = master;
             return (
-              <li key={id} className="list">
+              <li key={index} className="list">
                 <span>{name}</span>
                 <span>{city}</span>
                 <button onClick={() => this.delItem(id)}>Del</button>
@@ -86,13 +79,11 @@ class Master extends Component {
 }
 const mapStateToProps = (state) => ({
   masters: state.masters,
-  isLoad: state.masters.isLoad,
   cities: state.cities,
 });
 export default connect(mapStateToProps, {
   getMasters,
   addMaster,
   deleteMaster,
-  inprocess,
   getCities,
 })(Master);

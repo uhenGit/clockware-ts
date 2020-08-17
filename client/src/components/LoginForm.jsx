@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Link, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { login } from "../actions/clientAction";
-import { inprocess } from "../actions/clientAction";
 import store from "../store";
 
 class LoginForm extends Component {
@@ -18,7 +17,6 @@ class LoginForm extends Component {
   };
   formSubmit = (e) => {
     e.preventDefault();
-    this.props.inprocess();
     const client = {
       mail: this.state.mail,
       password: this.state.password,
@@ -91,4 +89,4 @@ const mapStateToProps = (state) => ({
   data: state.clients.client,
   isLoad: state.clients.isLoad,
 });
-export default connect(mapStateToProps, { login, inprocess })(LoginForm);
+export default connect(mapStateToProps, { login })(LoginForm);

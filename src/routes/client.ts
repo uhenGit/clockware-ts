@@ -6,6 +6,8 @@ const bcrypt = require("bcryptjs");
 //import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import { auth } from "../middleWare/auth";
+// todo: implement it
+//import { checkBody } from "../middleWare/checkTypes";
 
 const router = express.Router();
 
@@ -20,18 +22,18 @@ router.get("/all", auth, (req: express.Request, res: express.Response) => {
 // POST_NEW_CLIENT
 router.post("/register", (req: express.Request, res: express.Response) => {
   const clientRepository = getRepository(Client);
-  const newClient = new Client(),
-    date = new Date(),
-    insertDate = date.toISOString();
+  const newClient = new Client();
+  const date = new Date();
+  const insertDate = date.toISOString();
   let { name, mail, password, city } = req.body;
   if (!name || !mail || !password) {
-    return res.status(400).json({
+    res.status(400).json({
       msg: "all fields are required",
       isSignin: false,
     });
   }
   if (name.length < 4) {
-    return res.status(400).json({
+    res.status(400).json({
       msg: "login name must unclude more than 3 symbols",
       isSignin: false,
     });
@@ -40,7 +42,7 @@ router.post("/register", (req: express.Request, res: express.Response) => {
     .findOne({ mail: req.body.mail })
     .then((data) => {
       if (data) {
-        return res
+        res
           .status(400)
           .json({ msg: `${data.mail} allready exists`, isSignin: false });
       } else {
@@ -51,29 +53,46 @@ router.post("/register", (req: express.Request, res: express.Response) => {
         newClient.updatedAt = insertDate;
         bcrypt.genSalt(10, (err: Error, salt: string) => {
           if (err) {
-            return console.log("gensalt error: ", err);
+            throw Error("password hashing error. try again");
           }
-          bcrypt.hash(password, salt, (hashErr: Error, hash: string) => {
+          const myHash = bcrypt.hashSync(password, salt);
+          newClient.password = myHash;
+          clientRepository
+            .save(newClient)
+            .then((data) =>
+              res.status(200).json({
+                user: {
+                  name: data.name,
+                  mail: data.mail,
+                  id: data.id,
+                },
+                msg: `Client ${data.name} created. Now You can login`,
+                isSignin: true,
+              })
+            )
+            .catch((err) => {
+              throw err;
+            });
+          /*bcrypt.hash(password, salt, (hashErr: Error, hash: string) => {
             if (hashErr) {
               throw hashErr;
-            } else {
-              newClient.password = hash;
-              clientRepository
-                .save(newClient)
-                .then((data) =>
-                  res.status(200).json({
-                    user: {
-                      name: data.name,
-                      mail: data.mail,
-                      id: data.id,
-                    },
-                    msg: `Client ${data.name} created. Now You can login`,
-                    isSignin: true,
-                  })
-                )
-                .catch((err) => console.log("add query error: ", err));
             }
-          });
+            newClient.password = hash;
+            clientRepository
+              .save(newClient)
+              .then((data) =>
+                res.status(200).json({
+                  user: {
+                    name: data.name,
+                    mail: data.mail,
+                    id: data.id,
+                  },
+                  msg: `Client ${data.name} created. Now You can login`,
+                  isSignin: true,
+                })
+              )
+              .catch((err) => console.log("add query error: ", err));
+          });*/
         });
       }
     })
@@ -153,7 +172,6 @@ router.get("/:id", auth, (req: express.Request, res: express.Response) => {
 });
 
 // UPDATE_CLIENT
-// todo: set auth (user)
 router.put(
   "/update/:id",
   auth,
@@ -207,4 +225,4 @@ router.delete(
   }
 );
 
-module.exports = router;
+export default router;

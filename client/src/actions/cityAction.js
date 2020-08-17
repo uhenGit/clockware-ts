@@ -1,10 +1,7 @@
 import { GET_ALL_CITIES, POST_NEW_CITY, DELETE_CITY, INPROCESS } from "./types";
 
-export const inprocess = () => (dispatch) => {
-  dispatch({ type: INPROCESS });
-};
-
 export const getCities = () => (dispatch) => {
+  dispatch({ type: INPROCESS });
   fetch("/cities/all", {
     method: "GET",
     headers: {
@@ -21,6 +18,7 @@ export const getCities = () => (dispatch) => {
     .catch((err) => console.log("get cities action error: ", err));
 };
 export const addCity = (name) => (dispatch) => {
+  dispatch({ type: INPROCESS });
   const body = JSON.stringify({ name });
   const token = JSON.parse(localStorage.getItem("token"));
   fetch("/cities/add", {
@@ -41,6 +39,7 @@ export const addCity = (name) => (dispatch) => {
 };
 
 export const deleteCity = (id) => (dispatch) => {
+  dispatch({ type: INPROCESS });
   const token = JSON.parse(localStorage.getItem("token"));
   fetch(`/cities/delete/${id}`, {
     method: "DELETE",

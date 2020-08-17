@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import { Link, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
-import { signin, inprocess } from "../actions/clientAction";
-import { getCities } from "../actions/cityAction";
+import { signin } from "../actions/clientAction";
 
 class SigninForm extends Component {
   state = {
@@ -13,9 +12,6 @@ class SigninForm extends Component {
     borderColor: "",
     redir: false,
   };
-  componentDidMount() {
-    this.props.getCities();
-  }
   changeInput = (e) => {
     this.setState({
       [e.target.name]: e.target.value,
@@ -54,7 +50,6 @@ class SigninForm extends Component {
       name: this.state.name,
       city: this.state.city,
     };
-    this.props.inprocess();
     this.props.signin(client.mail, client.name, client.city, client.password);
     this.setState({
       name: "",
@@ -106,10 +101,8 @@ class SigninForm extends Component {
               <span>Выберите город:</span>
               <select onChange={this.changeCity}>
                 <option></option>
-                {this.props.cities.cities.map((city) => {
-                  let { name, id } = city;
-                  return <option key={id}>{name}</option>;
-                })}
+                <option value="Dnipro">Dnipro</option>
+                <option value="Uzhgorod">Uzhgorod</option>
               </select>
             </label>
             <label>
@@ -143,8 +136,5 @@ const mapStateToProps = (state) => ({
   client: state.clients.client,
   isLoad: state.clients.isLoad,
   isSignin: state.clients.isSignin,
-  cities: state.cities,
 });
-export default connect(mapStateToProps, { signin, inprocess, getCities })(
-  SigninForm
-);
+export default connect(mapStateToProps, { signin })(SigninForm);

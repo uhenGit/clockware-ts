@@ -1,11 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import {
-  getCities,
-  addCity,
-  deleteCity,
-  inprocess,
-} from "../actions/cityAction";
+import { getCities, addCity, deleteCity } from "../actions/cityAction";
 
 class City extends Component {
   state = {
@@ -16,7 +11,6 @@ class City extends Component {
   }
   delItem = (id) => {
     this.props.deleteCity(id);
-    this.props.inprocess();
     this.props.getCities();
   };
   handleInput = (e) => {
@@ -27,7 +21,6 @@ class City extends Component {
   addCity = (e) => {
     e.preventDefault();
     this.props.addCity(this.state.city);
-    this.props.inprocess();
     this.props.getCities();
   };
   render() {
@@ -72,5 +65,4 @@ export default connect(mapStateToProps, {
   getCities,
   addCity,
   deleteCity,
-  inprocess,
 })(City);

@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
 import AvailableMaster from "./AvailableMaster";
+import { postOrder, getOrders } from "../actions/orderAction";
 import store from "../store";
 
 class OrderForm extends Component {
@@ -9,12 +11,14 @@ class OrderForm extends Component {
     name: "",
     mail: "",
     city: "",
-    clock_size: "",
+    clockSize: "",
     date: "",
     time: "",
+    master: "",
     redir: false,
   };
   componentDidMount() {
+    this.props.getOrders();
     if (localStorage.getItem("token")) {
       const user = store.getState().clients.client.user;
       this.setState({
@@ -35,11 +39,30 @@ class OrderForm extends Component {
   };
   formSubmit = (e) => {
     e.preventDefault();
-    console.log(this.state);
+    const { name, mail, city, clockSize, date, time, master } = this.state;
+    if (
+      name === "" ||
+      mail === "" ||
+      city === "" ||
+      clockSize === "" ||
+      date === "" ||
+      time === ""
+    ) {
+      alert("All fields require!");
+    } else {
+      console.log("load before postOrde");
+      this.props.postOrder(mail, city, master, clockSize, date, time);
+      console.log("load after postOrde: ");
+      this.props.getOrders();
+      console.log(this.props);
+    }
   };
   render() {
     if (this.state.redir) {
       return <Redirect to="/login" />;
+    }
+    if (this.props.isLoad) {
+      return <h2>Wait...</h2>;
     }
     return (
       <div>
@@ -60,7 +83,7 @@ class OrderForm extends Component {
             </label>
             <label>
               <span>Размер часов:</span>
-              <select name="clock_size" onChange={this.handleInput}>
+              <select name="clockSize" onChange={this.handleInput}>
                 <option></option>
                 <option value="sm">small</option>
                 <option value="med">medium</option>
@@ -87,6 +110,15 @@ class OrderForm extends Component {
                 onChange={this.handleInput}
               />
             </label>
+            <label>
+              <span>Введите мастера:</span>
+              <input
+                type="text"
+                name="master"
+                value={this.state.master}
+                onChange={this.handleInput}
+              />
+            </label>
             {this.state.date !== "" && this.state.time !== "" ? (
               <AvailableMaster />
             ) : null}
@@ -102,4 +134,12 @@ class OrderForm extends Component {
     );
   }
 }
-export default OrderForm;
+
+const mapStateToProps = (state) => (
+  console.log("state: ", state),
+  {
+    orders: state.orders.orders,
+    isLoad: state.orders.isLoad,
+  }
+);
+export default connect(mapStateToProps, { getOrders, postOrder })(OrderForm);

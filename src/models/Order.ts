@@ -6,13 +6,13 @@ export class Order {
   id!: number;
 
   @Column()
-  clientName!: string;
-
-  @Column()
-  masterId!: number;
+  clientMail!: string;
 
   @Column()
   masterName!: string;
+
+  @Column({ nullable: true })
+  masterId!: number;
 
   @Column()
   cityName!: string;

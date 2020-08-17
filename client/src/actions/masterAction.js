@@ -5,11 +5,12 @@ import {
   INPROCESS,
 } from "./types";
 
-export const inprocess = () => (dispatch) => {
-  dispatch({ type: INPROCESS });
-};
+// export const inprocess = () => (dispatch) => {
+//   dispatch({ type: INPROCESS });
+// };
 
 export const getMasters = () => (dispatch) => {
+  dispatch({ type: INPROCESS });
   const token = JSON.parse(localStorage.getItem("token"));
   fetch("/masters/all", {
     method: "GET",
@@ -28,6 +29,7 @@ export const getMasters = () => (dispatch) => {
     .catch((err) => console.log("get masters error: ", err));
 };
 export const addMaster = (name, city) => (dispatch) => {
+  dispatch({ type: INPROCESS });
   const token = JSON.parse(localStorage.getItem("token"));
   const body = JSON.stringify({ name, city });
   fetch("/masters/add", {
@@ -39,10 +41,11 @@ export const addMaster = (name, city) => (dispatch) => {
     body,
   })
     .then((res) => res.json())
-    .then(dispatch({ type: POST_NEW_MASTER }))
+    .then((data) => dispatch({ type: POST_NEW_MASTER, payload: data }))
     .catch((err) => console.log("add new master error: ", err));
 };
 export const deleteMaster = (id) => (dispatch) => {
+  dispatch({ type: INPROCESS });
   const token = JSON.parse(localStorage.getItem("token"));
   fetch(`/masters/delete/${id}`, {
     method: "DELETE",
@@ -52,6 +55,6 @@ export const deleteMaster = (id) => (dispatch) => {
     },
   })
     .then((res) => res.json())
-    .then(dispatch({ type: DELETE_MASTER }))
+    .then((data) => dispatch({ type: DELETE_MASTER, payload: id }))
     .catch((err) => console.log("delete master error: ", err));
 };

@@ -15,18 +15,15 @@ router.get("/all", auth, (req: express.Request, res: express.Response) => {
     .catch((err) => console.log("all query error: ", err));
 });
 
-// fix join
 router.post("/add", auth, (req: express.Request, res: express.Response) => {
   const orderRepository = getRepository(Order);
-  const newOrder = new Order(),
-    newMaster = new Master(),
-    orderDate = new Date(),
-    insertDate = orderDate.toISOString();
-  newMaster.id = req.body.masterId;
-  newOrder.clientName = req.body.clientName;
+  const newOrder = new Order();
+  const orderDate = new Date();
+  const insertDate = orderDate.toISOString();
+  newOrder.clientMail = req.body.clientMail;
   newOrder.cityName = req.body.cityName;
-  newOrder.masterId = newMaster.id;
-  //newOrder.master_name = newMaster.name;
+  newOrder.masterName = req.body.masterName;
+  newOrder.masterId = req.body.masterId;
   newOrder.clockSize = req.body.clockSize;
   newOrder.isDone = false;
   newOrder.date = req.body.date;
@@ -55,7 +52,7 @@ router.post("/add", auth, (req: express.Request, res: express.Response) => {
     .then((data) =>
       res
         .status(200)
-        .json({ msg: `Order on ${data.time} ${data.date} created` })
+        .json({ msg: `Order on ${data.time} ${data.date} created`, data })
     )
     .catch((err) =>
       res.status(400).json({ msg: `${err.detail} Error in ${err.column}` })
@@ -68,18 +65,19 @@ router.put(
   auth,
   (req: express.Request, res: express.Response) => {
     const orderRepository = getRepository(Order);
-    const updatedOrder = new Order(),
-      date = new Date(),
-      insertDate = date.toISOString();
+    const updatedOrder = new Order();
+    const date = new Date();
+    const insertDate = date.toISOString();
     updatedOrder.updatedAt = insertDate;
-    if (req.body.clientName) {
-      updatedOrder.clientName = req.body.clientName;
+    if (req.body.clientMail) {
+      updatedOrder.clientMail = req.body.clientMail;
     }
     if (req.body.cityName) {
       updatedOrder.cityName = req.body.cityName;
     }
     if (req.body.masterName) {
       updatedOrder.masterId = req.body.masterId;
+      updatedOrder.masterName = req.body.masterName;
     }
     if (req.body.clockSize) {
       updatedOrder.clockSize = req.body.clockSize;
@@ -92,11 +90,7 @@ router.put(
     }
     orderRepository
       .update(req.params.id, updatedOrder)
-      .then((data) =>
-        res
-          .status(200)
-          .json({ msg: `Updated strings quantity: ${data.affected}` })
-      )
+      .then((data) => res.status(200).json({ msg: `Order updated`, data }))
       .catch((err) => res.status(400).json({ msg: err.detail }));
   }
 );
@@ -109,12 +103,26 @@ router.delete(
     orderRepository
       .delete(req.params.id)
       .then((result) =>
-        res
-          .status(200)
-          .json({ msg: `Deleted strings quantity: ${result.affected}` })
+        res.status(200).json({ msg: `Order delete successfully` })
       )
       .catch((err) => console.log("delete error: ", err));
   }
 );
 
-module.exports = router;
+// find ordres by date/time to get unengaged masters
+// todo: check query!!!!!!!!!!!!
+router.get(
+  "/exists/:city/:date",
+  (req: express.Request, res: express.Response) => {
+    const orderRepository = getRepository(Order);
+    orderRepository
+      .query(
+        `SELECT "masterName", "master".id FROM "order", "master" WHERE "master"."city" = '${req.params.city}' AND "order"."masterName" != "master"."name" AND "order"."date" != '${req.params.date}'`
+      )
+      .then((masters) => res.status(200).json(masters))
+      .catch((err) =>
+        res.status(400).json({ msg: `Get masters error: ${err}` })
+      );
+  }
+);
+export default router;
