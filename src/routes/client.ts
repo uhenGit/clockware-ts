@@ -1,13 +1,13 @@
 import express from "express";
+import * as dotenv from "dotenv";
 import { getRepository } from "typeorm";
 import { Client } from "../models/Client";
-
+dotenv.config();
 const bcrypt = require("bcryptjs");
 //import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import { auth } from "../middleWare/auth";
-// todo: implement it
-//import { checkBody } from "../middleWare/checkTypes";
+import { yupRegister, yupLogin } from "../middleWare/yupSchema";
 
 const router = express.Router();
 
@@ -20,46 +20,33 @@ router.get("/all", auth, (req: express.Request, res: express.Response) => {
 });
 
 // POST_NEW_CLIENT
-router.post("/register", (req: express.Request, res: express.Response) => {
-  const clientRepository = getRepository(Client);
-  const newClient = new Client();
-  const date = new Date();
-  const insertDate = date.toISOString();
-  let { name, mail, password, city } = req.body;
-  if (!name || !mail || !password) {
-    res.status(400).json({
-      msg: "all fields are required",
-      isSignin: false,
-    });
-  }
-  if (name.length < 4) {
-    res.status(400).json({
-      msg: "login name must unclude more than 3 symbols",
-      isSignin: false,
-    });
-  }
-  clientRepository
-    .findOne({ mail: req.body.mail })
-    .then((data) => {
-      if (data) {
-        res
-          .status(400)
-          .json({ msg: `${data.mail} allready exists`, isSignin: false });
-      } else {
-        newClient.name = name;
-        newClient.city = city;
-        newClient.mail = mail;
-        newClient.createdAt = insertDate;
-        newClient.updatedAt = insertDate;
-        bcrypt.genSalt(10, (err: Error, salt: string) => {
+router.post(
+  "/register",
+  yupRegister,
+  async (req: express.Request, res: express.Response) => {
+    const clientRepository = getRepository(Client);
+    const newClient = new Client();
+    const date = new Date();
+    const insertDate = date.toISOString();
+    let { name, mail, password, city } = req.body;
+    const data = await clientRepository.findOne({ mail: req.body.mail });
+    if (data) {
+      res
+        .status(400)
+        .json({ msg: `${data.mail} allready exists`, isSignin: false });
+    } else {
+      try {
+        bcrypt.hash(password, 10, (err: Error, hash: string) => {
           if (err) {
-            throw Error("password hashing error. try again");
-          }
-          const myHash = bcrypt.hashSync(password, salt);
-          newClient.password = myHash;
-          clientRepository
-            .save(newClient)
-            .then((data) =>
+            return res.status(500).json({ error: err });
+          } else {
+            newClient.name = name;
+            newClient.city = city;
+            newClient.mail = mail;
+            newClient.createdAt = insertDate;
+            newClient.updatedAt = insertDate;
+            newClient.password = hash;
+            clientRepository.save(newClient).then((data) => {
               res.status(200).json({
                 user: {
                   name: data.name,
@@ -68,99 +55,73 @@ router.post("/register", (req: express.Request, res: express.Response) => {
                 },
                 msg: `Client ${data.name} created. Now You can login`,
                 isSignin: true,
-              })
-            )
-            .catch((err) => {
-              throw err;
+              });
             });
-          /*bcrypt.hash(password, salt, (hashErr: Error, hash: string) => {
-            if (hashErr) {
-              throw hashErr;
-            }
-            newClient.password = hash;
-            clientRepository
-              .save(newClient)
-              .then((data) =>
-                res.status(200).json({
-                  user: {
-                    name: data.name,
-                    mail: data.mail,
-                    id: data.id,
-                  },
-                  msg: `Client ${data.name} created. Now You can login`,
-                  isSignin: true,
-                })
-              )
-              .catch((err) => console.log("add query error: ", err));
-          });*/
+          }
         });
+      } catch (error) {
+        console.log("client find error: ", error);
       }
-    })
-    .catch((err) => {
-      console.log("client find error: ", err);
-    });
-});
+    }
+  }
+);
 
 // LOGIN
-router.post("/login", (req: express.Request, res: express.Response) => {
-  if (!req.body.mail || !req.body.password) {
-    return res.json({ alert: "all fields required" });
-  } else {
+router.post(
+  "/login",
+  yupLogin,
+  async (req: express.Request, res: express.Response) => {
     const clientRepository = getRepository(Client);
-    clientRepository
-      .findOne({ mail: req.body.mail })
-      .then((client) => {
-        bcrypt
-          .compare(req.body.password, client?.password)
-          .then((result: Boolean) => {
-            if (result) {
-              const matchedClient = { mail: client?.mail };
-              const accessToken = jwt.sign(matchedClient, "secret");
-              if (client?.name === "admin") {
-                res.json({
-                  user: {
-                    mail: client.mail,
-                    name: client.name,
-                    city: client?.city,
-                    id: client?.id,
-                  },
-                  token: accessToken,
-                  isAuth: true,
-                  isAdmin: true,
-                });
-              } else {
-                res.json({
-                  user: {
-                    mail: client?.mail,
-                    name: client?.name,
-                    city: client?.city,
-                    id: client?.id,
-                  },
-                  token: accessToken,
-                  isAdmin: false,
-                  isAuth: true,
-                });
-              }
-            } else {
-              res.json({
-                msg: "Wrong password. Authorization failed",
-                isAuth: false,
-              });
-            }
-          })
-          .catch((err: string) =>
+    const client = await clientRepository.findOne({ mail: req.body.mail });
+    if (client) {
+      try {
+        const result = await bcrypt.compare(req.body.password, client.password);
+        if (result) {
+          const secret: any = process.env.JWT_SECRET;
+          const matchedClient = { mail: client.mail };
+          const accessToken = jwt.sign(matchedClient, secret);
+          const user = {
+            mail: client.mail,
+            name: client.name,
+            city: client.city,
+            id: client.id,
+          };
+          if (client.name === "admin") {
             res.json({
-              msg: "Invalid credentials. Authorization failed",
+              user,
+              token: accessToken,
+              isAuth: true,
+              isAdmin: true,
+            });
+          } else {
+            res.json({
+              user,
+              token: accessToken,
+              isAdmin: false,
+              isAuth: true,
+            });
+          }
+        } else {
+          return res
+            .status(400)
+            .json({
+              msg: "Wrong password. Authorization failed",
               isAuth: false,
-              error: err,
-            })
-          );
-      })
-      .catch((err: Error) =>
-        res.status(404).json({ msg: "Client not found", error: err })
-      );
+            });
+        }
+      } catch (error) {
+        return res
+          .status(400)
+          .json({
+            msg: "Wrong credentials. Authorization failed",
+            isAuth: false,
+          });
+      }
+    } else {
+      return res.status(404).json({ msg: "Client not found", isAuth: false });
+    }
   }
-});
+);
 
 // GET_ONE_CLIENT
 router.get("/:id", auth, (req: express.Request, res: express.Response) => {
